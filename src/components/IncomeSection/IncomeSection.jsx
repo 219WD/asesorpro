@@ -1,90 +1,69 @@
 import React, { useState } from 'react';
-import Form from '../UI/Form/Form';
-import List from '../UI/List/List';
+
+const fmtCur = (v) =>
+  '$' + (Math.round((v || 0) * 100) / 100).toLocaleString('es-AR', {
+    minimumFractionDigits: 2, maximumFractionDigits: 2
+  });
 
 const IncomeSection = ({ incomes, setIncomes }) => {
-  const [incomeName, setIncomeName] = useState('');
-  const [incomeAmount, setIncomeAmount] = useState('');
-  const [isEditing, setIsEditing] = useState(null);
-  const [editIndex, setEditIndex] = useState(null);
+  const [name, setName] = useState('');
+  const [amount, setAmount] = useState('');
 
-  const addIncome = (e) => {
-    e.preventDefault();
-    if (incomeName && incomeAmount) {
-      setIncomes([...incomes, { name: incomeName, amount: parseFloat(incomeAmount) || 0 }]);
-      setIncomeName('');
-      setIncomeAmount('');
-    }
+  const add = () => {
+    const amt = parseFloat(amount);
+    if (!name.trim() || isNaN(amt) || amt <= 0) return;
+    setIncomes([...incomes, { name: name.trim(), amount: amt }]);
+    setName(''); setAmount('');
   };
 
-  const removeIncome = (index) => {
-    const newIncomes = incomes.filter((_, i) => i !== index);
-    setIncomes(newIncomes);
-  };
+  const remove = (i) => setIncomes(incomes.filter((_, idx) => idx !== i));
 
-  const editIncome = (index, item) => {
-    setIsEditing(true);
-    setEditIndex(index);
-  };
-
-  const saveEditIncome = (index, value) => {
-    // Parsear el valor editado (formato: "Nombre: $Monto")
-    const parts = value.split(': $');
-    if (parts.length === 2) {
-      const newIncomes = [...incomes];
-      newIncomes[index] = {
-        name: parts[0].trim(),
-        amount: parseFloat(parts[1]) || 0
-      };
-      setIncomes(newIncomes);
-    }
-    cancelEdit();
-  };
-
-  const cancelEdit = () => {
-    setIsEditing(null);
-    setEditIndex(null);
-  };
-
-  const totalIncome = incomes.reduce((sum, inc) => sum + (inc.amount || 0), 0);
-
-  const formFields = [
-    {
-      type: 'text',
-      placeholder: 'Nombre del ingreso (ej. Salario)',
-      value: incomeName,
-      onChange: (e) => setIncomeName(e.target.value),
-      required: true
-    },
-    {
-      type: 'number',
-      placeholder: 'Monto',
-      value: incomeAmount,
-      onChange: (e) => setIncomeAmount(e.target.value),
-      required: true
-    }
-  ];
+  const total = incomes.reduce((s, i) => s + (i.amount || 0), 0);
 
   return (
-    <section className="section income-section">
-      <h2>Ingresos Mensuales</h2>
-      <Form 
-        onSubmit={addIncome} 
-        fields={formFields} 
-        buttonText="Agregar Ingreso" 
-      />
-      <List 
-        items={incomes} 
-        onRemove={removeIncome} 
-        onEdit={editIncome}
-        onSaveEdit={saveEditIncome}
-        onCancelEdit={cancelEdit}
-        isEditing={isEditing}
-        editIndex={editIndex}
-        formatItem={(inc) => `${inc.name}: $${(inc.amount || 0).toFixed(2)}`}
-      />
-      <div className="total">Total Ingresos: ${(totalIncome || 0).toFixed(2)}</div>
-    </section>
+    <>
+      <div className="card">
+        <div className="card-title">
+          Agregar ingreso
+          <span className="badge badge-purple">MENSUAL</span>
+        </div>
+        <div className="input-row">
+          <input
+            className="inp" placeholder="Ej: Salario" value={name}
+            onChange={e => setName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && add()}
+          />
+          <input
+            className="inp" type="number" placeholder="$0.00" value={amount} min="0" step="0.01"
+            onChange={e => setAmount(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && add()}
+          />
+          <button className="btn" onClick={add}>+ Agregar</button>
+        </div>
+        <ul className="item-list">
+          {incomes.map((inc, i) => (
+            <li key={i} className="item">
+              <span className="item-name">{inc.name}</span>
+              <span className="item-amt">{fmtCur(inc.amount)}</span>
+              <div className="item-acts">
+                <button className="btn-sm btn-del" onClick={() => remove(i)}>✕</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="stat-grid">
+        <div className="stat-box">
+          <div className="lbl">TOTAL INGRESOS</div>
+          <div className="val accent">{fmtCur(total)}</div>
+        </div>
+        <div className="stat-box">
+          <div className="lbl">FUENTES</div>
+          <div className="val">{incomes.length}</div>
+        </div>
+      </div>
+    </>
   );
 };
 

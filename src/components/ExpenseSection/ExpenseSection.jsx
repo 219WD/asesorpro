@@ -1,130 +1,92 @@
 import React, { useState } from 'react';
-import Form from '../UI/Form/Form';
-import List from '../UI/List/List';
 import { calculateExpenseTotals } from '../../utils/calculations';
 
+const fmtCur = (v) =>
+  '$' + (Math.round((v || 0) * 100) / 100).toLocaleString('es-AR', {
+    minimumFractionDigits: 2, maximumFractionDigits: 2
+  });
+
+const CAT_LABEL = { essential: 'Esencial', personal: 'Personal', debt: 'Deuda' };
+const CAT_BADGE = { essential: 'badge-green', personal: 'badge-yellow', debt: 'badge-red' };
+
 const ExpenseSection = ({ expenses, setExpenses }) => {
-  const [expenseName, setExpenseName] = useState('');
-  const [expenseAmount, setExpenseAmount] = useState('');
-  const [expenseCategory, setExpenseCategory] = useState('essential');
-  const [isEditing, setIsEditing] = useState(null);
-  const [editIndex, setEditIndex] = useState(null);
+  const [name, setName]         = useState('');
+  const [amount, setAmount]     = useState('');
+  const [category, setCategory] = useState('essential');
 
-  const addExpense = (e) => {
-    e.preventDefault();
-    if (expenseName && expenseAmount) {
-      setExpenses([...expenses, { 
-        name: expenseName, 
-        amount: parseFloat(expenseAmount) || 0, 
-        category: expenseCategory 
-      }]);
-      setExpenseName('');
-      setExpenseAmount('');
-    }
+  const add = () => {
+    const amt = parseFloat(amount);
+    if (!name.trim() || isNaN(amt) || amt <= 0) return;
+    setExpenses([...expenses, { name: name.trim(), amount: amt, category }]);
+    setName(''); setAmount('');
   };
 
-  const removeExpense = (index) => {
-    const newExpenses = expenses.filter((_, i) => i !== index);
-    setExpenses(newExpenses);
-  };
-
-  const editExpense = (index, item) => {
-    setIsEditing(true);
-    setEditIndex(index);
-  };
-
-  const saveEditExpense = (index, value) => {
-    // Parsear el valor editado (formato: "Nombre (Categoría): $Monto")
-    const categoryMatch = value.match(/\((.*?)\)/);
-    const amountMatch = value.match(/\$\s*([0-9,.]+)/);
-    
-    if (categoryMatch && amountMatch) {
-      const category = categoryMatch[1].toLowerCase();
-      const name = value.split(' (')[0].trim();
-      const amount = parseFloat(amountMatch[1].replace(',', '')) || 0;
-      
-      // Validar categoría
-      let finalCategory = 'essential';
-      if (category.includes('personal')) finalCategory = 'personal';
-      if (category.includes('deuda')) finalCategory = 'debt';
-      
-      const newExpenses = [...expenses];
-      newExpenses[index] = {
-        name,
-        amount,
-        category: finalCategory
-      };
-      setExpenses(newExpenses);
-    }
-    cancelEdit();
-  };
-
-  const cancelEdit = () => {
-    setIsEditing(null);
-    setEditIndex(null);
-  };
+  const remove = (i) => setExpenses(expenses.filter((_, idx) => idx !== i));
 
   const { totalEssential, totalPersonal, totalDebts, totalExpenses } = calculateExpenseTotals(expenses);
 
-  const formFields = [
-    {
-      type: 'text',
-      placeholder: 'Nombre del gasto (ej. Alquiler)',
-      value: expenseName,
-      onChange: (e) => setExpenseName(e.target.value),
-      required: true
-    },
-    {
-      type: 'number',
-      placeholder: 'Monto',
-      value: expenseAmount,
-      onChange: (e) => setExpenseAmount(e.target.value),
-      required: true
-    },
-    {
-      type: 'select',
-      value: expenseCategory,
-      onChange: (e) => setExpenseCategory(e.target.value),
-      options: [
-        { value: 'essential', label: 'Esencial (alquiler, comida, etc.)' },
-        { value: 'personal', label: 'Personal (estilo de vida)' },
-        { value: 'debt', label: 'Deuda (préstamos, tarjetas)' }
-      ]
-    }
-  ];
-
-  const formatExpenseItem = (exp) => {
-    const categoryText = 
-      exp.category === 'essential' ? 'Esencial' : 
-      exp.category === 'personal' ? 'Personal' : 'Deuda';
-    return `${exp.name} (${categoryText}): $${(exp.amount || 0).toFixed(2)}`;
-  };
-
   return (
-    <section className="section expense-section">
-      <h2>Gastos Mensuales</h2>
-      <Form 
-        onSubmit={addExpense} 
-        fields={formFields} 
-        buttonText="Agregar Gasto" 
-      />
-      <List 
-        items={expenses} 
-        onRemove={removeExpense} 
-        onEdit={editExpense}
-        onSaveEdit={saveEditExpense}
-        onCancelEdit={cancelEdit}
-        isEditing={isEditing}
-        editIndex={editIndex}
-        formatItem={formatExpenseItem}
-      />
-      <div className="totals">
-        <div>Esenciales: ${(totalEssential || 0).toFixed(2)}</div>
-        <div>Personales: ${(totalPersonal || 0).toFixed(2)}</div>
-        <div>Deudas: ${(totalDebts || 0).toFixed(2)}</div>
-        <div>Total Gastos: ${(totalExpenses || 0).toFixed(2)}</div>
+    <>
+      <div className="card">
+        <div className="card-title">Agregar gasto</div>
+        <div className="input-row">
+          <input
+            className="inp" placeholder="Ej: Alquiler" value={name}
+            onChange={e => setName(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && add()}
+          />
+          <input
+            className="inp" type="number" placeholder="$0.00" value={amount} min="0" step="0.01"
+            onChange={e => setAmount(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && add()}
+          />
+        </div>
+        <div className="input-row" style={{ marginBottom: 14 }}>
+          <div className="sel-wrap">
+            <select className="sel" value={category} onChange={e => setCategory(e.target.value)}>
+              <option value="essential">🏠 Esencial — alquiler, comida, servicios</option>
+              <option value="personal">🎯 Personal — ocio, ropa, salidas</option>
+              <option value="debt">💳 Deuda — préstamos, tarjetas, cuotas</option>
+            </select>
+          </div>
+          <button className="btn" onClick={add}>+ Agregar</button>
+        </div>
+        <ul className="item-list">
+          {expenses.map((exp, i) => (
+            <li key={i} className="item">
+              <span className={`dot dot-${exp.category}`} />
+              <span className="item-name">{exp.name}</span>
+              <span className={`badge ${CAT_BADGE[exp.category]}`} style={{ fontSize: 9 }}>
+                {CAT_LABEL[exp.category]}
+              </span>
+              <span className="item-amt">{fmtCur(exp.amount)}</span>
+              <div className="item-acts">
+                <button className="btn-sm btn-del" onClick={() => remove(i)}>✕</button>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
-    </section>
+
+      <div className="stat-grid">
+        <div className="stat-box">
+          <div className="lbl">ESENCIALES</div>
+          <div className="val green">{fmtCur(totalEssential)}</div>
+        </div>
+        <div className="stat-box">
+          <div className="lbl">PERSONALES</div>
+          <div className="val yellow">{fmtCur(totalPersonal)}</div>
+        </div>
+        <div className="stat-box">
+          <div className="lbl">DEUDAS</div>
+          <div className="val red">{fmtCur(totalDebts)}</div>
+        </div>
+        <div className="stat-box">
+          <div className="lbl">TOTAL GASTOS</div>
+          <div className="val">{fmtCur(totalExpenses)}</div>
+        </div>
+      </div>
+    </>
   );
 };
 
