@@ -6,9 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#7c6fff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <meta name="apple-mobile-web-app-title" content="219Finances" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/manifest-icon-192.maskable.png" />
     <link rel="manifest" href="/manifest.json" />
     <title>Asesor Financiero Pro | 219Finances</title>
   </head>
@@ -16,9 +19,12 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js');
+      // Registrar SW siempre (también en local para pruebas)
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js")
+            .then(reg => console.log("SW registrado:", reg))
+            .catch(err => console.log("Error SW:", err));
         });
       }
     </script>
