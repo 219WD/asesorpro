@@ -6,17 +6,35 @@ const fmtCur = (v) =>
   });
 
 const IncomeSection = ({ incomes, setIncomes }) => {
-  const [name, setName] = useState('');
-  const [amount, setAmount] = useState('');
+  const [name, setName]       = useState('');
+  const [amount, setAmount]   = useState('');
+  const [editId, setEditId]   = useState(null);
+  const [editName, setEditName]     = useState('');
+  const [editAmount, setEditAmount] = useState('');
 
   const add = () => {
     const amt = parseFloat(amount);
     if (!name.trim() || isNaN(amt) || amt <= 0) return;
-    setIncomes([...incomes, { name: name.trim(), amount: amt }]);
+    setIncomes([...incomes, { id: Date.now(), name: name.trim(), amount: amt }]);
     setName(''); setAmount('');
   };
 
-  const remove = (i) => setIncomes(incomes.filter((_, idx) => idx !== i));
+  const remove = (id) => setIncomes(incomes.filter(i => i.id !== id));
+
+  const startEdit = (inc) => {
+    setEditId(inc.id);
+    setEditName(inc.name);
+    setEditAmount(String(inc.amount));
+  };
+
+  const saveEdit = () => {
+    const amt = parseFloat(editAmount);
+    if (!editName.trim() || isNaN(amt) || amt <= 0) return;
+    setIncomes(incomes.map(i => i.id === editId ? { ...i, name: editName.trim(), amount: amt } : i));
+    setEditId(null);
+  };
+
+  const cancelEdit = () => setEditId(null);
 
   const total = incomes.reduce((s, i) => s + (i.amount || 0), 0);
 
@@ -40,14 +58,27 @@ const IncomeSection = ({ incomes, setIncomes }) => {
           />
           <button className="btn" onClick={add}>+ Agregar</button>
         </div>
+
         <ul className="item-list">
-          {incomes.map((inc, i) => (
-            <li key={i} className="item">
-              <span className="item-name">{inc.name}</span>
-              <span className="item-amt">{fmtCur(inc.amount)}</span>
-              <div className="item-acts">
-                <button className="btn-sm btn-del" onClick={() => remove(i)}>✕</button>
-              </div>
+          {incomes.map((inc) => (
+            <li key={inc.id}>
+              {editId === inc.id ? (
+                <div className="edit-row">
+                  <input className="inp" style={{ flex: 1 }} value={editName} onChange={e => setEditName(e.target.value)} />
+                  <input className="inp" type="number" style={{ flex: 1 }} value={editAmount} onChange={e => setEditAmount(e.target.value)} />
+                  <button className="btn" style={{ padding: '7px 12px', fontSize: 11 }} onClick={saveEdit}>✓ Guardar</button>
+                  <button className="btn-sm" onClick={cancelEdit}>✕</button>
+                </div>
+              ) : (
+                <div className="item">
+                  <span className="item-name">{inc.name}</span>
+                  <span className="item-amt">{fmtCur(inc.amount)}</span>
+                  <div className="item-acts">
+                    <button className="btn-sm btn-edit" onClick={() => startEdit(inc)}>✎</button>
+                    <button className="btn-sm btn-del" onClick={() => remove(inc.id)}>✕</button>
+                  </div>
+                </div>
+              )}
             </li>
           ))}
         </ul>

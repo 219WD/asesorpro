@@ -4,12 +4,12 @@ const Toast = ({ toasts }) => (
   <div style={{ position: 'relative', zIndex: 100 }}>
     {toasts.map(t => (
       <div key={t.id} style={{
-        margin: '8px 20px 0',
+        margin: '8px 16px 0',
         background: 'var(--surface)',
         border: `1px solid var(--border2)`,
         borderLeft: `3px solid ${t.color}`,
         borderRadius: 'var(--radius-sm)',
-        padding: '9px 13px',
+        padding: '9px 12px',
         fontSize: 11,
         display: 'flex',
         alignItems: 'center',

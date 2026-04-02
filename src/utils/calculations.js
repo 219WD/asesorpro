@@ -32,6 +32,15 @@ export const calculateExpenseTotals = (expenses) => {
   };
 };
 
+export const calculateInvestmentTotals = (investments) => {
+  const totalInvested = investments.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+  const totalReturns  = investments.reduce((sum, inv) => sum + (inv.returns || 0), 0);
+  const totalValue    = totalInvested + totalReturns;
+  const totalROI      = totalInvested > 0 ? (totalReturns / totalInvested) * 100 : 0;
+
+  return { totalInvested, totalReturns, totalValue, totalROI };
+};
+
 export const calculateFinancialPlan = (
   totalIncome,
   totalEssentialExpenses,
@@ -43,10 +52,10 @@ export const calculateFinancialPlan = (
 ) => {
   const pcts = getMethodPcts(savingsMethod, customPct);
 
-  const recommendedEssential       = totalIncome * (pcts.essential / 100);
-  const recommendedPersonal        = totalIncome * (pcts.personal  / 100);
-  const recommendedDebts           = totalIncome * 0.1;
-  const recommendedRegularSavings  = totalIncome * (pcts.savings   / 100);
+  const recommendedEssential        = totalIncome * (pcts.essential / 100);
+  const recommendedPersonal         = totalIncome * (pcts.personal  / 100);
+  const recommendedDebts            = totalIncome * 0.1;
+  const recommendedRegularSavings   = totalIncome * (pcts.savings   / 100);
   const recommendedEmergencySavings = totalIncome * 0.1;
 
   const actualRegular =
@@ -83,15 +92,15 @@ export const calculateFinancialPlan = (
       category:    `Ahorro (${pcts.savings}%)`,
       recommended: recommendedRegularSavings,
       actual:      actualRegular,
-      difference:  actualRegular           - recommendedRegularSavings,
+      difference:  actualRegular            - recommendedRegularSavings,
       remaining:   recommendedRegularSavings - actualRegular,
     },
     {
       category:    'Reserva de Emergencia (10%)',
       recommended: recommendedEmergencySavings,
       actual:      actualEmergency,
-      difference:  actualEmergency            - recommendedEmergencySavings,
-      remaining:   recommendedEmergencySavings - actualEmergency,
+      difference:  actualEmergency             - recommendedEmergencySavings,
+      remaining:   recommendedEmergencySavings  - actualEmergency,
     },
   ];
 };

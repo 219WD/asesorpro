@@ -19,14 +19,14 @@ const SavingsSection = ({
   savingsMethod, setSavingsMethod,
   customPct, setCustomPct,
 }) => {
-  const pcts    = getMethodPcts(savingsMethod, customPct);
-  const recSav  = totalIncome * pcts.savings / 100;
+  const pcts      = getMethodPcts(savingsMethod, customPct);
+  const recSav    = totalIncome * pcts.savings / 100;
   const goalTotal = (savingsGoal.regular || 0) + (savingsGoal.emergency || 0);
-  const pctSum  = (customPct.essential || 0) + (customPct.personal || 0) + (customPct.savings || 0);
+  const pctSum    = (customPct.essential || 0) + (customPct.personal || 0) + (customPct.savings || 0);
 
   const progRows = [
-    { label: 'Ahorro real',   pct: totalIncome > 0 ? actualSavings / totalIncome * 100 : 0, color: '#06d6a0' },
-    { label: 'Meta método',   pct: pcts.savings, color: '#7c6fff' },
+    { label: 'Ahorro real',  pct: totalIncome > 0 ? actualSavings / totalIncome * 100 : 0, color: '#06d6a0' },
+    { label: 'Meta método',  pct: pcts.savings, color: '#7c6fff' },
     ...(goalTotal > 0 ? [{ label: 'Vs. meta $', pct: actualSavings > 0 ? actualSavings / goalTotal * 100 : 0, color: '#ffd166' }] : []),
   ];
 
@@ -84,8 +84,8 @@ const SavingsSection = ({
         <div className="sec-label">Metas de ahorro (monto objetivo)</div>
         <div className="input-row">
           {[['regular','AHORRO REGULAR'],['emergency','FONDO DE EMERGENCIA']].map(([key, label]) => (
-            <div key={key} style={{ flex: 1 }}>
-              <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 5, fontFamily: 'var(--mono)' }}>{label}</div>
+            <div key={key} style={{ flex: 1, minWidth: 120 }}>
+              <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 5, fontFamily: 'var(--mono)' }}>{label}</div>
               <input
                 className="inp" type="number" placeholder="$0.00" min="0" step="0.01"
                 value={savingsGoal[key] || ''}
