@@ -10,7 +10,9 @@ const fmtPct = (v) => (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
 
 const ASSET_TYPES = [
   { value: 'acciones',   label: '📈 Acciones' },
+  { value: 'cedears',    label: '🌎 CEDEARs' },
   { value: 'bonos',      label: '🏛 Bonos' },
+  { value: 'lecaps',     label: '📋 LECAPs' },
   { value: 'fondos',     label: '📊 Fondos / ETF' },
   { value: 'cripto',     label: '₿  Cripto' },
   { value: 'plazo_fijo', label: '🏦 Plazo fijo' },
