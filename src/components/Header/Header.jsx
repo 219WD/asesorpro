@@ -2,7 +2,7 @@ import React from 'react';
 import usePWAInstall from '../../hooks/usePWAInstall';
 
 const Header = ({ currentMonth }) => {
-  const { install, showInstallButton, hasNativePrompt } = usePWAInstall();
+  const { install, showInstallButton } = usePWAInstall();
 
   return (
     <header className="hdr">
@@ -20,14 +20,10 @@ const Header = ({ currentMonth }) => {
             alignItems: 'center',
             gap: 6,
             padding: '7px 12px',
-            background: hasNativePrompt
-              ? 'rgba(6,214,160,0.15)'       // verde = puede instalar de verdad
-              : 'rgba(124,111,255,0.15)',     // violeta = muestra instrucciones
-            border: `1px solid ${hasNativePrompt
-              ? 'rgba(6,214,160,0.35)'
-              : 'rgba(124,111,255,0.35)'}`,
+            background: 'rgba(6,214,160,0.15)',
+            border: '1px solid rgba(6,214,160,0.35)',
             borderRadius: 8,
-            color: hasNativePrompt ? 'var(--accent3)' : 'var(--accent)',
+            color: 'var(--accent3)',
             fontSize: 11,
             fontFamily: 'var(--sans)',
             fontWeight: 700,
@@ -35,12 +31,10 @@ const Header = ({ currentMonth }) => {
             whiteSpace: 'nowrap',
             flexShrink: 0,
             letterSpacing: 0.3,
-            transition: 'all 0.15s',
           }}
-          title={hasNativePrompt ? 'Instalar app' : 'Cómo instalar la app'}
         >
           <span style={{ fontSize: 14 }}>📲</span>
-          {hasNativePrompt ? 'Instalar' : 'Instalar app'}
+          Instalar app
         </button>
       )}
     </header>
